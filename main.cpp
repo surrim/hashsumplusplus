@@ -9,9 +9,8 @@ static void throwIfError(const gcry_error_t& error) {
 	}
 }
 
-static int showHelp() {
+static void showHelp() {
 	printf("%s", "hashsum [-t | --type ALGORITHM] FILE\n");
-	return EXIT_FAILURE;
 }
 
 static const std::map<std::string, unsigned> ALGORITHMS = {
@@ -59,12 +58,14 @@ int main(int argc, char *argv[]) {
 	for (auto i = 1; i < argc ; i++) {
 		if (!strcmp(argv[i], "-t") || !strcmp(argv[i], "--type")) {
 			if (i + 1 == argc) {
-				return showHelp();
+				showHelp();
+				return 1;
 			}
 			algorithmText = argv[i + 1];
 			i++;
 		} else if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) {
-			return showHelp();
+			showHelp();
+			return 0;
 		} else {
 			inputFileName = argv[i];
 		}
