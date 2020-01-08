@@ -51,7 +51,7 @@ static const std::map<std::string, unsigned> ALGORITHMS = {
 	{"blake2s-160", GCRY_MD_BLAKE2S_160},
 	{"blake2s-128", GCRY_MD_BLAKE2S_128}
 };
-static constexpr auto DEFAULT_ALGORITHM = "blake2b256";
+static constexpr auto DEFAULT_ALGORITHM = "blake2b-256";
 
 int main(int argc, char *argv[]) {
 	auto algorithmText = DEFAULT_ALGORITHM;
