@@ -1,6 +1,7 @@
 #include <cstdio>
-#include <string>
 #include <map>
+#include <set>
+#include <string>
 #include <gcrypt.h>
 
 static void throwIfError(const gcry_error_t& error) {
@@ -54,7 +55,7 @@ static constexpr auto DEFAULT_ALGORITHM = "blake2b-256";
 
 int main(int argc, char *argv[]) {
 	auto algorithmText = DEFAULT_ALGORITHM;
-	auto inputFileName = "-";
+	auto inputFileNames = std::set<std::string>();
 	for (auto i = 1; i < argc ; i++) {
 		if (!strcmp(argv[i], "-t") || !strcmp(argv[i], "--type")) {
 			if (i + 1 == argc) {
@@ -67,8 +68,11 @@ int main(int argc, char *argv[]) {
 			showHelp();
 			return 0;
 		} else {
-			inputFileName = argv[i];
+			inputFileNames.insert(argv[i]);
 		}
+	}
+	if (inputFileNames.empty()) {
+		inputFileNames.insert("-");
 	}
 
 	auto algorithm = ALGORITHMS.at(algorithmText);
@@ -76,25 +80,28 @@ int main(int argc, char *argv[]) {
 
 	gcry_md_handle *state = nullptr;
 	throwIfError(gcry_md_open(&state, algorithm, 0));
+	for (auto inputFileName : inputFileNames) {
+		FILE *file = nullptr;
+		if (inputFileName == "-") {
+			file = stdin;
+		} else {
+			file = fopen(inputFileName.c_str(), "r");
+		}
 
-	char buffer[BUFSIZ];
-	FILE *file = nullptr;
-	if (!strcmp(inputFileName, "-")) {
-		file = stdin;
-	} else {
-		file = fopen(inputFileName, "r");
-	}
+		gcry_md_reset(state);
+		char buffer[BUFSIZ];
+		while (auto readBytes = fread(buffer, 1, BUFSIZ, file)) {
+			gcry_md_write(state, buffer, readBytes);
+		}
+		fclose(file);
 
-	while (auto readBytes = fread(buffer, 1, BUFSIZ, file)) {
-		gcry_md_write(state, buffer, readBytes);
+		auto hash = gcry_md_read(state, algorithm);
+		for (auto i = 0u; i < hashSize; i++) {
+			printf("%02x", hash[i]);
+		}
+		printf("  %s\n", inputFileName.c_str());
 	}
-	auto hash = gcry_md_read(state, algorithm);
-	for (auto i = 0u; i < hashSize; i++) {
-		printf("%02x", hash[i]);
-	}
-	printf("  %s\n", inputFileName);
 	gcry_md_close(state);
-	fclose(file);
 
     return 0;
 }
