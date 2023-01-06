@@ -13,7 +13,7 @@ static void throwIfError(const gcry_error_t& error) {
 }
 
 static std::string toHexString(const std::vector<std::byte>& data) {
-	static constexpr std::array<char, 16> HEX = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+	static constexpr auto HEX = std::array<char, 16>{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 	auto hexString = std::string(2 * data.size(), '\0');
 	for (auto i = 0; i < data.size(); i++) {
 		auto byte = uint8_t(data[i]);
@@ -59,7 +59,7 @@ static const std::map<std::string, Algorithm> ALGORITHMS = { // see src/gcrypt.h
 	{"shake256", {GCRY_MD_SHAKE256, "SHAKE256"}},
 	{"blake2b-512", {GCRY_MD_BLAKE2B_512, "BLAKE2b-512"}},
 	{"blake2b-384", {GCRY_MD_BLAKE2B_384, "BLAKE2b-384"}},
-	{"blake2b-256", {GCRY_MD_BLAKE2B_256, "BLAKE2b-256, default"}},
+	{"blake2b-256", {GCRY_MD_BLAKE2B_256, "BLAKE2b-256"}},
 	{"blake2b-160", {GCRY_MD_BLAKE2B_160, "BLAKE2b-160"}},
 	{"blake2s-256", {GCRY_MD_BLAKE2S_256, "BLAKE2s-256"}},
 	{"blake2s-224", {GCRY_MD_BLAKE2S_224, "BLAKE2s-114"}},
@@ -69,6 +69,7 @@ static const std::map<std::string, Algorithm> ALGORITHMS = { // see src/gcrypt.h
 	{"sha512-256", {GCRY_MD_SHA512_256, "SHA-512/256"}},
 	{"sha512-224", {GCRY_MD_SHA512_224, "SHA-512/224"}},
 };
+static constexpr auto DEFAULT_ALGORITHM = std::string("blake2b-256");
 
 static void showHelp() {
 	std::cout << "Usage hashsum [OPTION]... FILE..." << std::endl
@@ -76,11 +77,9 @@ static void showHelp() {
 		<< "  -a, --algorithm ALGORITHM   Set the hash algorithm" << std::endl;
 	for (const auto& algorithm: ALGORITHMS) {
 		auto spaces = std::string(15 - algorithm.first.size(), ' ');
-		std::cout << "      " << algorithm.first << spaces << algorithm.second.description << std::endl;
+		std::cout << "      " << algorithm.first << spaces << algorithm.second.description << (algorithm.first == DEFAULT_ALGORITHM ? ", defauit" : "") << std::endl;
 	}
 }
-
-static constexpr auto DEFAULT_ALGORITHM = std::string("blake2b-256");
 
 int main(int argc, char *argv[]) {
 	auto algorithmText = DEFAULT_ALGORITHM;
