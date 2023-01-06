@@ -110,7 +110,7 @@ int main(int argc, char *argv[]) {
 	gcry_md_handle *state = nullptr;
 	throwIfError(gcry_md_open(&state, algorithm, 0));
 
-	auto buffer = std::vector<std::byte>(BUFSIZ);
+	auto buffer = std::vector<std::byte>(32768);
 	for (auto inputFileName: inputFileNames) {
 		FILE *file = nullptr;
 		if (inputFileName == "-") {
