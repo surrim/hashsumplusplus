@@ -11,7 +11,7 @@
 				<Option object_output="obj/debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="-t sha3-256 hashsum.cbp .gitignore" />
+				<Option parameters="-a blake2b-256 hashsum.cbp .gitignore NULL" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -31,8 +31,7 @@
 			</Target>
 		</Build>
 		<Compiler>
-			<Add option="-Wall" />
-			<Add option="-std=c++17" />
+			<Add option="-std=c++20" />
 		</Compiler>
 		<Linker>
 			<Add library="gcrypt" />
@@ -40,9 +39,6 @@
 		</Linker>
 		<Unit filename="main.cpp" />
 		<Extensions>
-			<code_completion />
-			<envvars />
-			<debugger />
 			<lib_finder disable_auto="1" />
 		</Extensions>
 	</Project>
